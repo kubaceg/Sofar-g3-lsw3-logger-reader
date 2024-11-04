@@ -1,6 +1,6 @@
 module github.com/kubaceg/sofar_g3_lsw3_logger_reader
 
-go 1.19
+go 1.21
 
 require (
 	github.com/eclipse/paho.mqtt.golang v1.3.1

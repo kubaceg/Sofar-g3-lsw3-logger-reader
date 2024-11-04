@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"log/slog"
 	"os"
 
 	"github.com/kubaceg/sofar_g3_lsw3_logger_reader/adapters/export/otlp"
@@ -11,6 +12,7 @@ import (
 )
 
 type Config struct {
+	Debug    bool `default:"false" yaml:"debug"`
 	Inverter struct {
 		Port          string   `yaml:"port"`
 		LoggerSerial  uint     `yaml:"loggerSerial"`
@@ -54,4 +56,12 @@ func NewConfig(configPath string) (*Config, error) {
 	}
 
 	return config, nil
+}
+
+func (c Config) getLoglevel() slog.Leveler {
+	if c.Debug {
+		return slog.LevelDebug
+	}
+
+	return slog.LevelInfo
 }

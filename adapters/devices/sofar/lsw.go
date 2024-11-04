@@ -3,7 +3,7 @@ package sofar
 import (
 	"encoding/binary"
 	"fmt"
-	"log"
+	"log/slog"
 
 	"github.com/sigurn/crc16"
 
@@ -102,7 +102,7 @@ func readRegisterRange(rr registerRange, connPort ports.CommunicationPort, seria
 
 	defer func(connPort ports.CommunicationPort) {
 		if err := connPort.Close(); err != nil {
-			log.Printf("error during connection close: %s", err)
+			slog.Error(fmt.Sprintf("error during connection close: %s", err))
 		}
 	}(connPort)
 

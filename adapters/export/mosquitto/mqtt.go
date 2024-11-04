@@ -3,7 +3,7 @@ package mosquitto
 import (
 	"encoding/json"
 	"fmt"
-	"log"
+	"log/slog"
 	"strings"
 	"time"
 
@@ -25,11 +25,11 @@ type Connection struct {
 }
 
 var connectHandler mqtt.OnConnectHandler = func(client mqtt.Client) {
-	log.Printf("MQTT Connected")
+	slog.Debug("MQTT Connected")
 }
 
 var connectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err error) {
-	log.Printf("Connect lost: %v", err)
+	slog.Warn(fmt.Sprintf("Connect lost: %v", err))
 }
 
 func New(config *MqttConfig) (*Connection, error) {
@@ -62,7 +62,7 @@ func (conn *Connection) publish(topic string, msg string, retain bool) {
 	token := conn.client.Publish(topic, 0, retain, msg)
 	res := token.WaitTimeout(1 * time.Second)
 	if !res || token.Error() != nil {
-		log.Printf("error inserting to MQTT: %s", token.Error())
+		slog.Error(fmt.Sprintf("error inserting to MQTT: %s", token.Error()))
 	}
 }
 

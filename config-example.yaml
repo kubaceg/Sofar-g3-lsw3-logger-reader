@@ -1,4 +1,5 @@
 # make your own in config.yaml
+logLevel: info 
 
 inverter:
   port: 1.2.3.4:8899       # required, port name e.g. /dev/ttyUSB0 for serial or 1.2.3.4:8899 for TCP/IP

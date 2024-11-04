@@ -1,8 +1,9 @@
 package serial
 
 import (
+	"fmt"
 	"io"
-	"log"
+	"log/slog"
 	"time"
 
 	"go.bug.st/serial"
@@ -35,7 +36,7 @@ func New(name string, baud int, dataBits int, parityMode serial.Parity, stopBits
 func (s *serialPort) Open() error {
 	if s.serialPort != nil {
 		if err := s.Close(); err != nil {
-			log.Printf("error during serial port connection close: %s", err)
+			slog.Error(fmt.Sprintf("error during serial port connection close: %s", err))
 		}
 	}
 

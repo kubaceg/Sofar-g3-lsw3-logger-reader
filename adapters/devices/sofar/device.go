@@ -1,7 +1,8 @@
 package sofar
 
 import (
-	"log"
+	"fmt"
+	"log/slog"
 	"regexp"
 
 	"github.com/kubaceg/sofar_g3_lsw3_logger_reader/ports"
@@ -31,7 +32,7 @@ func toREs(patterns []string) []*regexp.Regexp {
 		if err == nil {
 			res = append(res, re)
 		} else {
-			log.Printf("config attrBlackList item %d '%s' not a valid regexp; %v", idx, p, err)
+			slog.Warn(fmt.Sprintf("config attrBlackList item %d '%s' not a valid regexp; %v", idx, p, err))
 		}
 	}
 	return res
