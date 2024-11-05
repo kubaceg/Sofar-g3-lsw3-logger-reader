@@ -14,7 +14,7 @@ import (
 	"github.com/kubaceg/sofar_g3_lsw3_logger_reader/adapters/devices/sofar"
 	"github.com/kubaceg/sofar_g3_lsw3_logger_reader/adapters/export/mosquitto"
 	"github.com/kubaceg/sofar_g3_lsw3_logger_reader/adapters/export/otlp"
-
+	"github.com/kubaceg/sofar_g3_lsw3_logger_reader/adapters/filters"
 	"github.com/kubaceg/sofar_g3_lsw3_logger_reader/ports"
 )
 
@@ -23,11 +23,12 @@ import (
 const maximumFailedConnections = 3
 
 var (
-	config *Config
-	port   ports.CommunicationPort
-	mqtt   ports.DatabaseWithListener
-	device ports.Device
-	telem  *otlp.Service
+	config      *Config
+	port        ports.CommunicationPort
+	mqtt        ports.DatabaseWithListener
+	device      ports.Device
+	telem       *otlp.Service
+	dataFilters []ports.Filter
 
 	hasMQTT bool
 	hasOTLP bool
@@ -66,6 +67,8 @@ func initialize() {
 		}
 	}
 
+	dataFilters = []ports.Filter{filters.NewDailyGenerationFilter()}
+
 	device = sofar.NewSofarLogger(config.Inverter.LoggerSerial, port)
 }
 
@@ -87,6 +90,14 @@ func main() {
 			}
 
 			continue
+		}
+
+		for _, filter := range dataFilters {
+			measurements, err = filter.Filter(measurements)
+			if err != nil {
+				log.Printf("filter failed: %s", err)
+				continue
+			}
 		}
 
 		failedConnections = 0
