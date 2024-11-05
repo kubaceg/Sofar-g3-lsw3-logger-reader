@@ -1,6 +1,6 @@
-/sofar
-sofar_g3_lsw3_logger_reader
+/bin
 config.yaml
-sofar
+sofar-x86
 sofar-arm
+.vscode
 .idea

@@ -3,7 +3,7 @@ package sofar
 import (
 	"encoding/binary"
 	"fmt"
-	"log"
+	"log/slog"
 
 	"github.com/sigurn/crc16"
 
@@ -73,7 +73,7 @@ func (l LSWRequest) checksum(buf []byte) uint8 {
 	return checksum
 }
 
-func readData(connPort ports.CommunicationPort, serialNumber uint) (map[string]interface{}, error) {
+func readData(connPort ports.CommunicationPort, serialNumber uint, nameFilter func(string) bool) (map[string]interface{}, error) {
 	result := make(map[string]interface{})
 
 	for _, rr := range allRegisterRanges {
@@ -81,9 +81,10 @@ func readData(connPort ports.CommunicationPort, serialNumber uint) (map[string]i
 		if err != nil {
 			return nil, err
 		}
-
 		for k, v := range reply {
-			result[k] = v
+			if nameFilter(k) {
+				result[k] = v
+			}
 		}
 	}
 	return result, nil
@@ -101,7 +102,7 @@ func readRegisterRange(rr registerRange, connPort ports.CommunicationPort, seria
 
 	defer func(connPort ports.CommunicationPort) {
 		if err := connPort.Close(); err != nil {
-			log.Printf("error during connection close: %s", err)
+			slog.Error(fmt.Sprintf("error during connection close: %s", err))
 		}
 	}(connPort)
 
@@ -111,27 +112,25 @@ func readRegisterRange(rr registerRange, connPort ports.CommunicationPort, seria
 		return nil, err
 	}
 
-	// read the result
-	buf := make([]byte, 2048)
-	n, err := connPort.Read(buf)
-	if err != nil {
-		return nil, err
+	// read enough bytes
+	buf := []byte{}
+	for {
+		b := make([]byte, 2048)
+		n, err := connPort.Read(b)
+		if n > 0 {
+			buf = append(buf, b[:n]...)
+		}
+		if err != nil {
+			return nil, err
+		}
+		if len(buf) >= 28 && len(buf) >= 28+int(buf[27]) {
+			break
+		}
 	}
-
-	// truncate the buffer
-	buf = buf[:n]
-	if len(buf) < 48 {
-		// short reply
-		return nil, fmt.Errorf("short reply: %d bytes", n)
-	}
-
-	replyBytesCount := buf[27]
-
-	modbusReply := buf[28 : 28+replyBytesCount]
+	modbusReply := buf[28 : 28+buf[27]]
 
 	// shove the data into the reply
 	reply := make(map[string]interface{})
-
 	for _, f := range rr.replyFields {
 		fieldOffset := (f.register - rr.start) * 2
 

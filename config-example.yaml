@@ -1,15 +1,91 @@
+# make your own in config.yaml
+logLevel: info 
+
 inverter:
-  port: 1.2.3.4:23 # required port name (e.g. /dev/ttyUSB0 for serial or 1.2.3.4:23 for TCP/IP
-  loggerSerial: 123456 # required logger serial number
-  readInterval: 60 # update interval in seconds, default 60
-mqtt:
-  url: 1.2.3.4:5678 #MQTT broker URL (e.g. 1.2.3.4:5678)
-  user: #MQTT username (leave empty when not needed)
-  password: #MQTT password (leave empty when not needed)
-  prefix: /sensors/energy/inverter #topic prefix on which data will be sent
-otlp:
+  port: 1.2.3.4:8899       # required, port name e.g. /dev/ttyUSB0 for serial or 1.2.3.4:8899 for TCP/IP
+  loggerSerial: 23XXXXXXXX # required, logger serial number
+  readInterval: 10         # update interval in seconds, default 60
+  loopLogging: true        # false to avoid a line to log file every readInterval
+  #
+  # if there is a non-empty attrWhiteList then only these explicitly listed attributes are output
+  attrWhiteList:
+    - ActivePower_Output_Total # Total PV generation (in units of 10W)
+    - ActivePower_Load_Sys     # total power consumption (10W)
+    - ActivePower_PCC_Total    # grid export (+) or import (-) (10W) = ActivePower_Output_Total - ActivePower_Load_Sys (so it is redundant data)
+    - Power_PV1                # PV output of string 1 (10W)
+    - Power_PV2                # PV output of string 2 (10W); PV1 + PV2 > ActivePower_Output_Total by about 3.5% due to inverter inefficiency?
+    - PV_Generation_Today      # generation since midnight (10Wh)
+    - PV_Generation_Total
+    - GenerationTime_Today
+    - GenerationTime_Total
+    - Frequency_Grid
+    - Voltage_Phase_R          # grid voltage on phase R/1
+    - InsulationResistance     # changes to these last ones might indicate a problem
+    - Temperature_Env1
+    - Temperature_HeatSink1
+  # else attributes are output unless they match a regex in attrBlackList
+  attrBlackList:
+    - "^[ST]_"                 # prefix R_, S_, T_ for 3 phases, only R_ used in single phase systems
+    - "_[ST]$"                 # likewise suffixes _R, _S, _T
+
+mqtt:                     # MQTT disabled if url & prefix both blank
+  url: 1.2.3.4:1883       # MQTT broker URL (e.g. 1.2.3.4:1883)
+  user:                   # MQTT username (leave empty when not needed)
+  password:               # MQTT password (leave empty when not needed)
+  ha_discovery_prefix: homeassistant/sensor   # topic prefix for Home Assistant MQTT Discovery
+  state:     energy/inverter/state  # topic for state
+
+otlp:                     # OTLP disabled if both urls blank
   grpc:
-    url: 0.0.0.0:4317 #URL for gRPC OTLP server
+    url:                  # URL for gRPC OTLP server e.g. 0.0.0.0:4317
   http:
-    url: 0.0.0.0:4318 #URL for HTTP OLTP server
+    url:                  # URL for HTTP OLTP server e.g. 0.0.0.0:4318 
   prefix: sofar.logging
+
+# List of all attributes with non-zero values fetched from my inverter:
+#
+# # Most interesting to me:
+#     "ActivePower_Load_Sys": 16,        # total power consumption (10W)
+#     "ActivePower_Output_Total": 333,   # Total PV generation (in units of 10W)
+#     "ActivePower_PCC_Total": 317,      # grid export (+) or import (-) (10W) = ActivePower_Output_Total - ActivePower_Load_Sys (so it is redundant data)
+#     "GenerationTime_Today": 553,
+#     "GenerationTime_Total": 54992,
+#     "PV_Generation_Today": 3428,       # generation since midnight (10Wh)
+#     "PV_Generation_Total": 20355,
+
+# # Not credible:
+#     "Load_Consumption_Today": 3428,    # same as PV_Generation_Today, so not credible as Load
+#     "Load_Consumption_Total": 20355,   # same as PV_Generation_Total, so not credible as Load
+
+# # Inverter:
+#     "ApparentPower_Output_Total": 33,
+#     "Countdown": 60,
+#     "InsulationResistance": 1437,
+#     "ServiceTime_Total": 56198,
+#     "SysState": 2,
+#     "SysTime_Date": 19,
+#     "SysTime_Hour": 14,
+#     "SysTime_Minute": 56,
+#     "SysTime_Month": 9,
+#     "SysTime_Second": 1,
+#     "SysTime_Year": 23,
+#     "Temperature_Env1": 48,                # Single Plate Ambient Temperature (label from SolarMan app)
+#     "Temperature_HeatSink1": 35,           # Radiator Temperature 1 (label from SolarMan app)
+#     "Temperature_HeatSink2": 120,          # value never seems to change
+
+# # PV strings of panels:
+#     "Power_PV1": 175,                      # PV output of string 1 (10W)
+#     "Power_PV2": 172,                      # PV output of string 2 (10W); PV1 + PV2 > ActivePower_Output_Total by about 3.5% due to inverter inefficiency?
+#     "Voltage_PV1": 2438,
+#     "Voltage_PV2": 2436,
+#     "Current_PV1": 720,
+#     "Current_PV2": 706,
+
+# # Grid:
+#     "Frequency_Grid": 5000,
+
+# # Phase R (single phase power):
+#     "ActivePower_PCC_R": 317,              # same as ActivePower_PCC_Total
+#     "Voltage_Phase_R": 2352                # grid voltage
+#     "Current_Output_R": 1418,
+#     "Current_PCC_R": 1394,

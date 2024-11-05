@@ -1,7 +1,6 @@
 package tcpip
 
 import (
-	"bufio"
 	"fmt"
 	"net"
 	"time"
@@ -51,13 +50,11 @@ func (s *tcpIpPort) Read(buf []byte) (int, error) {
 		return 0, fmt.Errorf("connection is not open")
 	}
 
-	reader := bufio.NewReader(s.conn)
-
 	if err := s.conn.SetReadDeadline(time.Now().Add(timeout)); err != nil {
 		return 0, err
 	}
 
-	return reader.Read(buf)
+	return s.conn.Read(buf)
 }
 
 func (s *tcpIpPort) Write(payload []byte) (int, error) {

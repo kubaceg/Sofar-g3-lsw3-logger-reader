@@ -1,5 +1,9 @@
 package sofar
 
+import (
+	"github.com/kubaceg/sofar_g3_lsw3_logger_reader/ports"
+)
+
 type field struct {
 	register  int
 	name      string
@@ -32,6 +36,18 @@ func GetAllRegisterNames() []string {
 				continue
 			}
 			result = append(result, f.name)
+		}
+	}
+	return result
+}
+
+func getDiscoveryFields(nameFilter func(string) bool) []ports.DiscoveryField {
+	result := make([]ports.DiscoveryField, 0)
+	for _, rr := range allRegisterRanges {
+		for _, f := range rr.replyFields {
+			if f.name != "" && f.valueType != "" && nameFilter(f.name) {
+				result = append(result, ports.DiscoveryField{Name: f.name, Factor: f.factor, Unit: f.unit})
+			}
 		}
 	}
 	return result
@@ -75,18 +91,18 @@ var rrSystemInfo = registerRange{
 		{0x0423, "Temp_Rsvd1", "I16", "1", "℃"},
 		{0x0424, "Temp_Rsvd2", "I16", "1", "℃"},
 		{0x0425, "Temp_Rsvd3", "I16", "1", "℃"},
-		{0x0426, "GenerationTime_Today", "U16", "1", "Minute"},
-		{0x0427, "GenerationTime_Total", "U32", "1", "Minute"},
+		{0x0426, "GenerationTime_Today", "U16", "1", "min"}, // HA uses d, h, min, s not Minute
+		{0x0427, "GenerationTime_Total", "U32", "1", "min"},
 		{0x0428, "", "", "", ""},
-		{0x0429, "ServiceTime_Total", "U32", "1", "Minute"},
+		{0x0429, "ServiceTime_Total", "U32", "1", "min"},
 		{0x042A, "", "", "", ""},
 		{0x042B, "InsulationResistance", "U16", "1", "kΩ"},
 		{0x042C, "SysTime_Year", "U16", "", ""},
 		{0x042D, "SysTime_Month", "U16", "", ""},
-		{0x042E, "SysTime_Date", "U16", "", ""},
-		{0x042F, "SysTime_Hour", "U16", "", ""},
-		{0x0430, "SysTime_Minute", "U16", "", ""},
-		{0x0431, "SysTime_Second", "U16", "", ""},
+		{0x042E, "SysTime_Date", "U16", "1", "d"},
+		{0x042F, "SysTime_Hour", "U16", "1", "h"},
+		{0x0430, "SysTime_Minute", "U16", "1", "min"},
+		{0x0431, "SysTime_Second", "U16", "1", "s"},
 		{0x0432, "Fault19", "U16", "", ""},
 		{0x0433, "Fault20", "U16", "", ""},
 		{0x0434, "Fault21", "U16", "", ""},
@@ -104,11 +120,11 @@ var rrEnergyTodayTotals = registerRange{
 	replyFields: []field{
 		{0x684, "PV_Generation_Today", "U32", "0.01", "kWh"},
 		{0x686, "PV_Generation_Total", "U32", "0.1", "kWh"},
-		{0x688, "Load_Consumption_Today", "U32", "0.1", "kWh"},
+		{0x688, "Load_Consumption_Today", "U32", "0.01", "kWh"},
 		{0x68A, "Load_Consumption_Total", "U32", "0.1", "kWh"},
-		{0x68C, "Energy_Purchase_Today", "U32", "0.1", "kWh"},
+		{0x68C, "Energy_Purchase_Today", "U32", "0.01", "kWh"},
 		{0x68E, "Energy_Purchase_Total", "U32", "0.1", "kWh"},
-		{0x690, "Energy_Selling_Today", "U32", "0.1", "kWh"},
+		{0x690, "Energy_Selling_Today", "U32", "0.01", "kWh"},
 		{0x692, "Energy_Selling_Total", "U32", "0.1", "kWh"},
 		{0x694, "Bat_Charge_Today", "U32", "0.01", "kWh"},
 		{0x696, "Bat_Charge_Total", "U32", "0.1", "kWh"},

@@ -1,4 +1,7 @@
 # Sofar g3 LSW-3 logger reader
+
+[![Go](https://github.com/kubaceg/sofar_g3_lsw3_logger_reader/actions/workflows/go.yml/badge.svg?branch=master)](https://github.com/kubaceg/sofar_g3_lsw3_logger_reader/actions/workflows/go.yml)[![release](https://github.com/kubaceg/sofar_g3_lsw3_logger_reader/actions/workflows/release.yaml/badge.svg?event=release)](https://github.com/kubaceg/sofar_g3_lsw3_logger_reader/actions/workflows/release.yaml)
+
 Tool written in GO for reading metrics from Sofar LSW-3 and writing results into MQTT topics. 
 Program queries logger modbus port in infinite loop and sends data into MQTT topics (e.g. mosquito in HomeAssistant).
 
@@ -9,7 +12,7 @@ Program queries logger modbus port in infinite loop and sends data into MQTT top
 4. Copy example config `cp config-example.yaml config.yaml`
 5. Edit `config.yaml` in Your favorite editor, fill all required stuff
 6. Build program `make build` or build for ARM machines e.g. raspberryPi `make build-arm`
-7. Run `./sofar` or `sofar-arm`
+7. Run `bin/sofar` or `bin/sofar-arm`
 
 ## Output data format
 ### MQTT
@@ -19,6 +22,9 @@ Data will be sent into MQTT topic with name `{mqttPrefix}/{fieldName}` where:
 
 Full topic name for given example values is `/sensors/energy/inverter/PV_Generation_Today`.
 Additional field is `All` which contains all measurements and their values marshalled into one json.
+
+### Home Assistant
+This tool can integrate with Home Assistant using MQTT protocol. If You want to configure MQTT along with [discovery](https://www.home-assistant.io/integrations/mqtt/#mqtt-discovery) feature, just fill 'ha_discovery_prefix' and all sensors will be configured automatically in Your Home Assistant instance.
 
 ### OTLP
 Data can also be sent over OTLP protocol to a gRPC or http server. Typically, this would be received by the 

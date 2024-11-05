@@ -2,18 +2,24 @@ package main
 
 import (
 	"errors"
-	"github.com/kubaceg/sofar_g3_lsw3_logger_reader/adapters/export/otlp"
+	"log/slog"
 	"os"
+
+	"github.com/kubaceg/sofar_g3_lsw3_logger_reader/adapters/export/otlp"
 
 	"github.com/kubaceg/sofar_g3_lsw3_logger_reader/adapters/export/mosquitto"
 	"gopkg.in/yaml.v2"
 )
 
 type Config struct {
+	Debug    bool `default:"false" yaml:"debug"`
 	Inverter struct {
-		Port         string `yaml:"port"`
-		LoggerSerial uint   `yaml:"loggerSerial"`
-		ReadInterval int    `default:"60" yaml:"readInterval"`
+		Port          string   `yaml:"port"`
+		LoggerSerial  uint     `yaml:"loggerSerial"`
+		ReadInterval  int      `default:"60" yaml:"readInterval"`
+		LoopLogging   bool     `default:"true" yaml:"loopLogging"`
+		AttrWhiteList []string `yaml:"attrWhiteList"`
+		AttrBlackList []string `yaml:"attrBlackList"`
 	} `yaml:"inverter"`
 	Mqtt mosquitto.MqttConfig `yaml:"mqtt"`
 	Otlp otlp.Config          `yaml:"otlp"`
@@ -50,4 +56,12 @@ func NewConfig(configPath string) (*Config, error) {
 	}
 
 	return config, nil
+}
+
+func (c Config) getLoglevel() slog.Leveler {
+	if c.Debug {
+		return slog.LevelDebug
+	}
+
+	return slog.LevelInfo
 }

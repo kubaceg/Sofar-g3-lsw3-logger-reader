@@ -3,6 +3,8 @@ package otlp
 import (
 	"context"
 	"fmt"
+	"log/slog"
+
 	"github.com/kubaceg/sofar_g3_lsw3_logger_reader/adapters/devices/sofar"
 	grpc "go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
 	http "go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
@@ -13,7 +15,6 @@ import (
 	"go.opentelemetry.io/otel/sdk/metric/metricdata"
 	"go.opentelemetry.io/otel/sdk/resource"
 	semconv "go.opentelemetry.io/otel/semconv/v1.18.0"
-	"log"
 )
 
 const (
@@ -97,12 +98,12 @@ func (s *Service) initGauges() error {
 				if v, ok := s.measurements[lookup]; ok {
 					o.ObserveInt64(*g, convertToInt64(v))
 				} else {
-					log.Printf("could not find measurement for %s\n", name)
+					slog.Debug(fmt.Sprintf("could not find measurement for %s\n", name))
 				}
 				return nil
 			}, *g)
 		if err != nil {
-			log.Println("error registering gauge callback")
+			slog.Error(fmt.Sprintf("error registering gauge callback: %s", err))
 			return err
 		}
 	}
