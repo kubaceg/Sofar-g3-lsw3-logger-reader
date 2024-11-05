@@ -103,12 +103,10 @@ func main() {
 		for _, filter := range dataFilters {
 			measurements, err = filter.Filter(measurements)
 			if err != nil {
-				log.Printf("filter failed: %s", err)
+				slog.Error("filter failed: %s", err)
 				continue
 			}
 		}
-
-		failedConnections = 0
 
 		if hasMQTT {
 			var m map[string]interface{}
