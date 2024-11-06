@@ -10,7 +10,7 @@ import (
 func TestFilterCases(t *testing.T) {
 	tests := []struct {
 		name                     string
-		lastDailyGenerationValue int
+		lastDailyGenerationValue uint32
 		data                     map[string]interface{}
 		expectedResult           map[string]interface{}
 		expectedError            error
@@ -18,29 +18,29 @@ func TestFilterCases(t *testing.T) {
 		{
 			name:                     "ValidData",
 			lastDailyGenerationValue: 0,
-			data:                     map[string]interface{}{"PV_Generation_Today": 5000},
-			expectedResult:           map[string]interface{}{"PV_Generation_Today": 5000},
+			data:                     map[string]interface{}{"PV_Generation_Today": uint32(5000)},
+			expectedResult:           map[string]interface{}{"PV_Generation_Today": uint32(5000)},
 			expectedError:            nil,
 		},
 		{
 			name:                     "DiffTooHigh",
 			lastDailyGenerationValue: 9000,
-			data:                     map[string]interface{}{"PV_Generation_Today": 20000},
+			data:                     map[string]interface{}{"PV_Generation_Today": uint32(20000)},
 			expectedResult:           nil,
 			expectedError:            errors.New("PV generation today diff is too high, skipping"),
 		},
 		{
 			name:                     "FirstDataPoint",
 			lastDailyGenerationValue: 0,
-			data:                     map[string]interface{}{"PV_Generation_Today": 15000},
-			expectedResult:           map[string]interface{}{"PV_Generation_Today": 15000},
+			data:                     map[string]interface{}{"PV_Generation_Today": uint32(15000)},
+			expectedResult:           map[string]interface{}{"PV_Generation_Today": uint32(15000)},
 			expectedError:            nil,
 		},
 		{
 			name:                     "ExactMaxDiff",
 			lastDailyGenerationValue: 10000,
-			data:                     map[string]interface{}{"PV_Generation_Today": 20000},
-			expectedResult:           map[string]interface{}{"PV_Generation_Today": 20000},
+			data:                     map[string]interface{}{"PV_Generation_Today": uint32(20000)},
+			expectedResult:           map[string]interface{}{"PV_Generation_Today": uint32(20000)},
 			expectedError:            nil,
 		},
 	}
