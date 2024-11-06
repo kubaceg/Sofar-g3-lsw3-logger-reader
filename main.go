@@ -86,7 +86,7 @@ func main() {
 
 	for {
 		if config.Inverter.LoopLogging {
-			slog.Debug("performing measurements")
+			slog.Info("performing measurements")
 		}
 
 		var measurements map[string]interface{} = nil
