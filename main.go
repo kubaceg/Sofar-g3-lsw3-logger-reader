@@ -103,7 +103,7 @@ func main() {
 		for _, filter := range dataFilters {
 			measurements, err = filter.Filter(measurements)
 			if err != nil {
-				slog.Error("filter failed: %s", err)
+				slog.Error(fmt.Sprintf("filter failed: %s", err))
 				continue
 			}
 		}
