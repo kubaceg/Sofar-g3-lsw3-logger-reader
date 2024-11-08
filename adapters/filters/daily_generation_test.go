@@ -43,6 +43,13 @@ func TestFilterCases(t *testing.T) {
 			expectedResult:           map[string]interface{}{"PV_Generation_Today": uint32(20000)},
 			expectedError:            nil,
 		},
+		{
+			name:                     "Nil",
+			lastDailyGenerationValue: 10000,
+			data:                     map[string]interface{}{"PV_Generation_Today": nil},
+			expectedResult:           nil,
+			expectedError:            errors.New("PV generation today not found, skipping"),
+		},
 	}
 
 	for _, tt := range tests {
