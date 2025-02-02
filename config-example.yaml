@@ -28,6 +28,10 @@ inverter:
     - "^[ST]_"                 # prefix R_, S_, T_ for 3 phases, only R_ used in single phase systems
     - "_[ST]$"                 # likewise suffixes _R, _S, _T
 
+filters:
+  dailyGenerationSpikes: 100000 # daily generation spikes (difference between last value and current readed value) above this value (in wats) are ignored,
+  # here is issue which was solved by this filter https://github.com/kubaceg/Sofar-g3-lsw3-logger-reader/issues/12
+
 mqtt:                     # MQTT disabled if url & prefix both blank
   url: 1.2.3.4:1883       # MQTT broker URL (e.g. 1.2.3.4:1883)
   user:                   # MQTT username (leave empty when not needed)

@@ -2,20 +2,23 @@ package filters
 
 import "errors"
 
-const maxDailyGenerationDiff = 10000
+var ErrDailyGenerationDiffTooHigh = errors.New("daily generation spike detected, skipping")
 
-type DailyGenerationFilter struct {
+type DailyGenerationSpikesFilter struct {
 	lastDailyGenerationValue int
+	maxDailyGenerationDiff   int
 }
 
-func NewDailyGenerationFilter() *DailyGenerationFilter {
-	return &DailyGenerationFilter{}
+func NewDailyGenerationFilter(maxDailyGenerationDiff int) *DailyGenerationSpikesFilter {
+	return &DailyGenerationSpikesFilter{
+		maxDailyGenerationDiff: maxDailyGenerationDiff,
+	}
 }
 
-func (d *DailyGenerationFilter) Filter(data map[string]interface{}) (map[string]interface{}, error) {
+func (d *DailyGenerationSpikesFilter) Filter(data map[string]interface{}) (map[string]interface{}, error) {
 	if d.lastDailyGenerationValue > 0 &&
-		data["PV_Generation_Today"].(int)-d.lastDailyGenerationValue > maxDailyGenerationDiff {
-		return nil, errors.New("PV generation today diff is too high, skipping")
+		data["PV_Generation_Today"].(int)-d.lastDailyGenerationValue > d.maxDailyGenerationDiff {
+		return nil, ErrDailyGenerationDiffTooHigh
 	}
 
 	d.lastDailyGenerationValue = data["PV_Generation_Today"].(int)

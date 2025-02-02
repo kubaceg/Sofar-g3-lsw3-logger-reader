@@ -1,7 +1,6 @@
 package filters
 
 import (
-	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -27,7 +26,7 @@ func TestFilterCases(t *testing.T) {
 			lastDailyGenerationValue: 9000,
 			data:                     map[string]interface{}{"PV_Generation_Today": 20000},
 			expectedResult:           nil,
-			expectedError:            errors.New("PV generation today diff is too high, skipping"),
+			expectedError:            ErrDailyGenerationDiffTooHigh,
 		},
 		{
 			name:                     "FirstDataPoint",
@@ -47,7 +46,7 @@ func TestFilterCases(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			filter := NewDailyGenerationFilter()
+			filter := NewDailyGenerationFilter(10000)
 			filter.lastDailyGenerationValue = tt.lastDailyGenerationValue
 
 			result, err := filter.Filter(tt.data)
