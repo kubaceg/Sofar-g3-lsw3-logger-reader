@@ -8,3 +8,6 @@ build:
 
 test:
 	go test -v ./...
+
+lint:
+	docker run -t --rm -v .:/app -v ~/.cache/golangci-lint/v1.63.4:/root/.cache -w /app golangci/golangci-lint:v1.63.4 golangci-lint run -v
