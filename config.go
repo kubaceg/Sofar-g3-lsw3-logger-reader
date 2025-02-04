@@ -24,7 +24,7 @@ type Config struct {
 	Mqtt    mosquitto.MqttConfig `yaml:"mqtt"`
 	Otlp    otlp.Config          `yaml:"otlp"`
 	Filters struct {
-		DailyGenerationSpikes int `default:"0" yaml:"dailyGenerationSpikes"`
+		DailyGenerationSpikes uint32 `default:"0" yaml:"dailyGenerationSpikes"`
 	} `yaml:"filters"`
 }
 

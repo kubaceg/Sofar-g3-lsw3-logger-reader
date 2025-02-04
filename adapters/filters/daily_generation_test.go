@@ -3,43 +3,51 @@ package filters
 import (
 	"testing"
 
+	"github.com/kubaceg/sofar_g3_lsw3_logger_reader/ports"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestFilterCases(t *testing.T) {
 	tests := []struct {
 		name                     string
-		lastDailyGenerationValue int
-		data                     map[string]interface{}
-		expectedResult           map[string]interface{}
+		lastDailyGenerationValue uint32
+		data                     ports.MeasurementMap
+		expectedResult           ports.MeasurementMap
 		expectedError            error
 	}{
 		{
 			name:                     "ValidData",
-			lastDailyGenerationValue: 0,
-			data:                     map[string]interface{}{"PV_Generation_Today": 5000},
-			expectedResult:           map[string]interface{}{"PV_Generation_Today": 5000},
+			lastDailyGenerationValue: uint32(0),
+			data:                     ports.MeasurementMap{"PV_Generation_Today": uint32(5000)},
+			expectedResult:           ports.MeasurementMap{"PV_Generation_Today": uint32(5000)},
 			expectedError:            nil,
 		},
 		{
 			name:                     "DiffTooHigh",
-			lastDailyGenerationValue: 9000,
-			data:                     map[string]interface{}{"PV_Generation_Today": 20000},
+			lastDailyGenerationValue: uint32(9000),
+			data:                     ports.MeasurementMap{"PV_Generation_Today": uint32(20000)},
 			expectedResult:           nil,
 			expectedError:            ErrDailyGenerationDiffTooHigh,
 		},
 		{
 			name:                     "FirstDataPoint",
-			lastDailyGenerationValue: 0,
-			data:                     map[string]interface{}{"PV_Generation_Today": 15000},
-			expectedResult:           map[string]interface{}{"PV_Generation_Today": 15000},
+			lastDailyGenerationValue: uint32(0),
+			data:                     ports.MeasurementMap{"PV_Generation_Today": uint32(15000)},
+			expectedResult:           ports.MeasurementMap{"PV_Generation_Today": uint32(15000)},
 			expectedError:            nil,
 		},
 		{
 			name:                     "ExactMaxDiff",
-			lastDailyGenerationValue: 10000,
-			data:                     map[string]interface{}{"PV_Generation_Today": 20000},
-			expectedResult:           map[string]interface{}{"PV_Generation_Today": 20000},
+			lastDailyGenerationValue: uint32(10000),
+			data:                     ports.MeasurementMap{"PV_Generation_Today": uint32(20000)},
+			expectedResult:           ports.MeasurementMap{"PV_Generation_Today": uint32(20000)},
+			expectedError:            nil,
+		},
+		{
+			name:                     "NewDay",
+			lastDailyGenerationValue: uint32(10000),
+			data:                     ports.MeasurementMap{"PV_Generation_Today": uint32(500)},
+			expectedResult:           ports.MeasurementMap{"PV_Generation_Today": uint32(500)},
 			expectedError:            nil,
 		},
 	}

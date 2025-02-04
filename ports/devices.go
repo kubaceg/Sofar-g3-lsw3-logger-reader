@@ -10,5 +10,7 @@ type DiscoveryField struct {
 type Device interface {
 	Name() string
 	GetDiscoveryFields() []DiscoveryField
-	Query() (map[string]interface{}, error)
+	Query() (MeasurementMap, error)
 }
+
+type MeasurementMap map[string]interface{}

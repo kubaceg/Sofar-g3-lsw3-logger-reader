@@ -121,6 +121,7 @@ func performMeasurements() {
 			slog.Warn(fmt.Sprintf("failed to perform measurements on retry %d: %s", retry, err))
 			// at night, inverter is offline, err = "dial tcp 192.168.xx.xxx:8899: i/o timeout"
 			// at other times occasionally: "read tcp 192.168.68.104:38670->192.168.68.106:8899: i/o timeout"
+			return
 		}
 	}
 
