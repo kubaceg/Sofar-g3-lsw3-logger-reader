@@ -126,7 +126,7 @@ func (conn *Connection) InsertDiscoveryRecord(discovery string, state string, fi
 	return nil
 }
 
-func (conn *Connection) InsertRecord(m map[string]interface{}) error {
+func (conn *Connection) InsertRecord(m ports.MeasurementMap) error {
 	json, _ := json.Marshal(m)
 	conn.publish(conn.prefix, string(json), false) // state messages should not be retained
 	return nil

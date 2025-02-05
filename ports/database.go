@@ -4,7 +4,7 @@ import mqtt "github.com/eclipse/paho.mqtt.golang"
 
 type Database interface {
 	InsertDiscoveryRecord(discovery string, prefix string, fields []DiscoveryField) error
-	InsertRecord(measurement map[string]interface{}) error
+	InsertRecord(measurement MeasurementMap) error
 }
 
 type DatabaseWithListener interface {

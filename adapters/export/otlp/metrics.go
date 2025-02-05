@@ -6,6 +6,7 @@ import (
 	"log/slog"
 
 	"github.com/kubaceg/sofar_g3_lsw3_logger_reader/adapters/devices/sofar"
+	"github.com/kubaceg/sofar_g3_lsw3_logger_reader/ports"
 	grpc "go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
 	http "go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
 	"go.opentelemetry.io/otel/metric"
@@ -119,7 +120,7 @@ func (s *Service) createGauge(n string) *instrument.Int64ObservableGauge {
 }
 
 // CollectAndPushMetrics triggers the collection and export of metrics over OTLP
-func (s *Service) CollectAndPushMetrics(ctx context.Context, measurements map[string]interface{}) error {
+func (s *Service) CollectAndPushMetrics(ctx context.Context, measurements ports.MeasurementMap) error {
 	s.measurements = measurements
 	rm := metricdata.ResourceMetrics{}
 	if err := s.reader.Collect(ctx, &rm); err != nil {

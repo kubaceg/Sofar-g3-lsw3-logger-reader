@@ -21,8 +21,11 @@ type Config struct {
 		AttrWhiteList []string `yaml:"attrWhiteList"`
 		AttrBlackList []string `yaml:"attrBlackList"`
 	} `yaml:"inverter"`
-	Mqtt mosquitto.MqttConfig `yaml:"mqtt"`
-	Otlp otlp.Config          `yaml:"otlp"`
+	Mqtt    mosquitto.MqttConfig `yaml:"mqtt"`
+	Otlp    otlp.Config          `yaml:"otlp"`
+	Filters struct {
+		DailyGenerationSpikes uint32 `default:"0" yaml:"dailyGenerationSpikes"`
+	} `yaml:"filters"`
 }
 
 func (c *Config) validate() error {

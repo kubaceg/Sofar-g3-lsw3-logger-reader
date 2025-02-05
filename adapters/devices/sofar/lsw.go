@@ -34,7 +34,6 @@ func (l LSWRequest) ToBytes() []byte {
 	buf[5] = 0x00
 	buf[6] = 0x00
 
-	// fmt.Printf("serial number: %0X\n", uint32SerialNumber)
 	binary.LittleEndian.PutUint32(buf[7:], uint32(l.serialNumber))
 
 	buf[11] = 0x02
@@ -73,8 +72,8 @@ func (l LSWRequest) checksum(buf []byte) uint8 {
 	return checksum
 }
 
-func readData(connPort ports.CommunicationPort, serialNumber uint, nameFilter func(string) bool) (map[string]interface{}, error) {
-	result := make(map[string]interface{})
+func readData(connPort ports.CommunicationPort, serialNumber uint, nameFilter func(string) bool) (ports.MeasurementMap, error) {
+	result := make(ports.MeasurementMap)
 
 	for _, rr := range allRegisterRanges {
 		reply, err := readRegisterRange(rr, connPort, serialNumber)
@@ -90,7 +89,7 @@ func readData(connPort ports.CommunicationPort, serialNumber uint, nameFilter fu
 	return result, nil
 }
 
-func readRegisterRange(rr registerRange, connPort ports.CommunicationPort, serialNumber uint) (map[string]interface{}, error) {
+func readRegisterRange(rr registerRange, connPort ports.CommunicationPort, serialNumber uint) (ports.MeasurementMap, error) {
 	lswRequest := NewLSWRequest(serialNumber, rr.start, rr.end)
 
 	commandBytes := lswRequest.ToBytes()

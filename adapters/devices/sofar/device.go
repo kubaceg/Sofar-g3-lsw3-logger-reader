@@ -15,6 +15,15 @@ type Logger struct {
 	attrBlackList []*regexp.Regexp
 }
 
+func NewSofarLogger(serialNumber uint, connPort ports.CommunicationPort, attrWhiteList []string, attrBlackList []string) *Logger {
+	return &Logger{
+		serialNumber:  serialNumber,
+		connPort:      connPort,
+		attrWhiteList: toSet(attrWhiteList),
+		attrBlackList: toREs(attrBlackList),
+	}
+}
+
 // for a set in go we use a map of keys -> empty struct
 func toSet(slice []string) map[string]struct{} {
 	set := make(map[string]struct{}, len(slice))
@@ -38,15 +47,6 @@ func toREs(patterns []string) []*regexp.Regexp {
 	return res
 }
 
-func NewSofarLogger(serialNumber uint, connPort ports.CommunicationPort, attrWhiteList []string, attrBlackList []string) *Logger {
-	return &Logger{
-		serialNumber:  serialNumber,
-		connPort:      connPort,
-		attrWhiteList: toSet(attrWhiteList),
-		attrBlackList: toREs(attrBlackList),
-	}
-}
-
 func (s *Logger) nameFilter(k string) bool {
 	if len(s.attrWhiteList) > 0 {
 		if _, ok := s.attrWhiteList[k]; ok {
@@ -65,7 +65,7 @@ func (s *Logger) GetDiscoveryFields() []ports.DiscoveryField {
 	return getDiscoveryFields(s.nameFilter)
 }
 
-func (s *Logger) Query() (map[string]interface{}, error) {
+func (s *Logger) Query() (ports.MeasurementMap, error) {
 	return readData(s.connPort, s.serialNumber, s.nameFilter)
 }
 
